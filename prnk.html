@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SISTEM TERINKREPSI - AKSES DITOLAK</title>
+    <!-- Leaflet CSS untuk Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        :root { --green: #00ff41; --red: #ff0000; --bg: #0a0a0a; --dana-blue: #118eea; --gold: #ffd700; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        /* Body Default */
+        body { background: #f4f7f9; color: #333; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; overflow-x: hidden; }
+
+        /* --- HALAMAN AWAL --- */
+        #bait-screen {
+            background: #fff; min-height: 100vh; width: 100%; position: absolute; top: 0; left: 0; z-index: 5000; overflow-y: auto;
+        }
+        .header-blue {
+            background: var(--dana-blue); color: white; padding: 25px 20px; text-align: left; position: relative;
+            display: flex; flex-direction: column; align-items: flex-start;
+        }
+        .header-text-large { font-size: 24px; font-weight: 800; line-height: 1.2; letter-spacing: 1px; margin-bottom: 5px; }
+        .header-text-gold { color: #ffde00; font-size: 22px; font-weight: 900; }
+        .logo-dana-header { width: 80px; filter: brightness(0) invert(1); align-self: flex-end; margin-top: -20px; }
+        .sub-header-strip { background: #00a0e9; color: white; font-size: 12px; padding: 10px; text-align: center; font-weight: 500; }
+        .content-body { padding: 25px 20px; text-align: center; }
+        .instruction-text { font-size: 14px; color: #444; line-height: 1.6; margin-bottom: 20px; text-align: center; }
+        .btn-dapatkan {
+            background: #118eea; color: white; border: none; padding: 14px 0;
+            font-size: 18px; font-weight: bold; border-radius: 6px; cursor: pointer;
+            width: 85%; max-width: 320px; display: block; margin: 0 auto 30px;
+            box-shadow: 0 4px 12px rgba(17,142,234,0.4); text-transform: uppercase;
+        }
+        .promo-card-image { width: 100%; max-width: 380px; border-radius: 12px; margin: 0 auto; display: block; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .social-engagement { border-top: 1px solid #eee; margin-top: 25px; padding: 12px 20px; display: flex; justify-content: space-between; font-size: 12px; color: #777; }
+        .action-bar { border-top: 1px solid #eee; border-bottom: 1px solid #eee; display: flex; padding: 10px 0; justify-content: space-around; font-size: 13px; color: #666; font-weight: 600; }
+        .comment-box { padding: 15px 20px; background: #f0f2f5; text-align: left; }
+        .comment-item { display: flex; gap: 10px; margin-bottom: 15px; }
+        .user-avatar { width: 38px; height: 38px; border-radius: 50%; background: #ccc; flex-shrink: 0; }
+        .comment-content { background: white; padding: 10px 12px; border-radius: 18px; font-size: 13px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .comment-content b { color: #118eea; display: block; margin-bottom: 2px; }
+        .sticky-footer-count { background: var(--dana-blue); color: white; padding: 12px; text-align: center; font-size: 13px; position: sticky; bottom: 0; }
+
+        /* --- FITUR TERMINAL & RANSOMWARE --- */
+        #terminal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; padding: 25px; font-size: 13px; line-height: 1.8; display: none; background: #000; color: var(--green); z-index: 6000; font-family: 'Courier New', monospace; cursor: none; overflow-y: auto; }
+        #ransom-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle, #200000 0%, #000 100%); color: white; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 7000; padding: 15px; text-align: center; cursor: none; }
+        .ransom-card { background: rgba(0,0,0,0.95); border: 2px solid var(--red); padding: 20px; width: 100%; max-width: 500px; box-shadow: 0 0 50px rgba(255,0,0,0.5); max-height: 95vh; overflow-y: auto; }
+        .danger-text { color: var(--red); font-weight: bold; animation: flash 0.5s infinite; }
+        @keyframes flash { 50% { opacity: 0; } }
+        .timer { font-size: 2.5rem; color: var(--red); font-weight: bold; font-family: 'Impact', sans-serif; margin: 10px 0; border: 1px solid var(--red); display: inline-block; padding: 0 20px; background: rgba(255,0,0,0.1); }
+        #map-container { width: 100%; height: 160px; margin: 10px 0; border: 1px solid var(--red); display: none; filter: grayscale(100%) invert(100%) contrast(150%) brightness(0.8); }
+        .sys-info { text-align: left; font-size: 10px; color: #888; margin: 10px 0; border: 1px solid #333; padding: 8px; background: #111; }
+        .payment-info { background: #1a1a1a; border-left: 4px solid var(--gold); padding: 12px; text-align: left; margin: 10px 0; font-size: 11px; }
+        .pay-btn { background: var(--red); color: white; border: none; padding: 14px; font-weight: bold; width: 100%; border-radius: 5px; margin-top: 10px; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; }
+
+        /* --- HALAMAN AKHIR (REVEAL - EDITED) --- */
+        #reveal { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #ffffff; color: #000; display: none; 
+            flex-direction: column; align-items: center; justify-content: flex-start; 
+            z-index: 8000; text-align: center; overflow-y: auto; padding: 40px 20px;
+        }
+        .reveal-emojis { font-size: 4rem; margin-bottom: 10px; animation: bounce 2s infinite; }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% {transform: translateY(0);} 40% {transform: translateY(-20px);} 60% {transform: translateY(-10px);} }
+        
+        .reveal-header { font-size: 2rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 5px; }
+        .reveal-sub { font-size: 1.5rem; font-weight: 800; color: #118eea; margin-bottom: 20px; }
+        
+        .edu-card {
+            background: #f8f9fa; border-radius: 15px; padding: 25px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); width: 100%; max-width: 500px;
+            margin-bottom: 30px; border: 1px solid #eee; text-align: left;
+        }
+        .typing-text { font-size: 14px; line-height: 1.7; color: #444; font-weight: 500; min-height: 100px; }
+        .typing-text b { color: #ff0000; }
+
+        .btn-reset {
+            background: #118eea; color: white; border: none; padding: 15px 35px;
+            font-size: 16px; font-weight: bold; border-radius: 50px; cursor: pointer;
+            box-shadow: 0 8px 20px rgba(17,142,234,0.3); transition: 0.3s ease;
+            text-transform: uppercase; margin-bottom: 40px;
+        }
+        .btn-reset:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(17,142,234,0.4); }
+
+        .footer-credit { margin-top: auto; padding-bottom: 20px; }
+        .credit-name { font-size: 2.2rem; font-weight: 900; color: #1a1a1a; margin-bottom: 5px; }
+        .credit-fun { font-size: 1.2rem; font-weight: bold; color: #888; letter-spacing: 2px; }
+
+        /* Cursor untuk efek mengetik */
+        .cursor { display: inline-block; width: 3px; background-color: #118eea; margin-left: 2px; animation: blink 0.7s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+    </style>
+</head>
+<body>
+
+    <!-- LAYAR 1: UMPAN -->
+    <div id="bait-screen">
+        <div class="header-blue">
+            <div class="header-text-large">HAJATAN<br>ULANG TAHUN</div>
+            <div class="header-text-gold">RP 500.000<br>DANA KAGET</div>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/7/72/Logo_danain_terbaru.png" class="logo-dana-header" alt="DANA">
+        </div>
+        <div class="sub-header-strip">🎉 Hajatan Ulang Tahun DANA: Bagi-Bagi Saldo Rp500.000 untuk Semua Pengguna</div>
+        <div class="content-body">
+            <p class="instruction-text">Silakan klik tombol "DAPATKAN" di bawah dan masukkan nomor ponsel Anda untuk mendapatkan saldo dari Hajatan Ulang Tahun DANA.</p>
+            <button class="btn-dapatkan" onclick="requestLocation()">DAPATKAN</button>
+            <img src="p.png" class="promo-card-image" alt="Promo">
+        </div>
+        <div class="social-engagement"><span>👍❤️😮 136K</span><span>24K comments • 13K shares</span></div>
+        <div class="action-bar"><span>Suka</span><span>Komentar</span><span>Bagikan</span></div>
+        <div class="comment-box">
+            <div class="comment-item">
+                <div class="user-avatar" style="background: url('https://i.pravatar.cc/100?u=agus') center/cover;"></div>
+                <div class="comment-content"><b>Agus Setiawan</b>Awalnya saya kira ini tidak benar, tapi ternyata berhasil. Saldo DANA langsung masuk!</div>
+            </div>
+        </div>
+        <div class="sticky-footer-count"><b style="color: #ffde00;">6.295</b> pengguna telah menerima bonus DANA mereka</div>
+    </div>
+
+    <!-- TERMINAL -->
+    <div id="terminal"><div id="output"></div></div>
+
+    <!-- RANSOMWARE -->
+    <div id="ransom-screen">
+        <div class="ransom-card">
+            <h1 class="danger-text">⚠️ CRITICAL SYSTEM FAILURE ⚠️</h1>
+            
+            <!-- INSERT KODINGAN KEDUA DISINI -->
+            <p style="font-size: 12px; margin: 15px 0; color: #eee; line-height: 1.4;">
+                Seluruh direktori penyimpanan Anda telah dienkripsi dengan algoritma <b style="color:var(--red)">RSA-4096</b>. 
+                Upaya mematikan perangkat atau menutup halaman ini akan mengakibatkan <b style="color:var(--red)">PENGHAPUSAN PERMANEN</b> pada kunci dekripsi pribadi Anda.
+            </p>
+
+            <div class="sys-info" id="sys-info"></div>
+            <div id="map-container"></div>
+            <div class="timer" id="clock">04:59</div>
+            <div class="payment-info">
+                <p style="color: var(--gold); font-weight: bold;">INSTRUKSI PEMBAYARAN:</p>
+                <p>Kirim biaya administrasi dekripsi sebesar <b>Rp 500.000</b> ke:</p>
+                <p style="margin-top: 8px; font-size: 14px; background: #000; padding: 10px; border: 1px dashed var(--gold); text-align: center;">DANA/GOPAY: <b style="color:var(--green)">0831-9864-6448</b></p>
+            </div>
+            <button class="pay-btn" onclick="openReveal()">SAYA SUDAH MEMBAYAR / DEKRIPSI</button>
+        </div>
+    </div>
+
+    <!-- HALAMAN AKHIR (REVEAL - NEW DESIGN) -->
+    <div id="reveal">
+        <div class="reveal-emojis">🤣😁😅</div>
+        <div class="reveal-header">SYSTEM RESTORED!</div>
+        <div class="reveal-sub">CUMA PRANK!</div>
+
+        <div class="edu-card">
+            <div class="typing-text" id="final-text"></div><span class="cursor" id="type-cursor"></span>
+        </div>
+
+        <button class="btn-reset" onclick="location.reload()">Kembali ke Dunia Nyata</button>
+
+        <div class="footer-credit">
+            <div class="credit-name">By Ilyas Maulidan!</div>
+            <div class="credit-fun">Fun :)</div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        let userLat = -6.2000; 
+        let userLon = 106.8166;
+
+        function requestLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => { userLat = position.coords.latitude; userLon = position.coords.longitude; triggerTrap(); },
+                    (error) => { triggerTrap(); }
+                );
+            } else { triggerTrap(); }
+        }
+
+        function triggerTrap() {
+            if (document.documentElement.requestFullscreen) { document.documentElement.requestFullscreen().catch(() => {}); }
+            document.getElementById('bait-screen').style.display = 'none';
+            document.getElementById('terminal').style.display = 'block';
+            autoStart();
+        }
+
+        async function typeText(text, color = "var(--green)") {
+            const line = document.createElement('div');
+            line.style.color = color;
+            document.getElementById('output').appendChild(line);
+            for (let char of text) { line.innerHTML += char; await new Promise(r => setTimeout(r, 10)); }
+            line.innerHTML += " [DONE]";
+            document.getElementById('terminal').scrollTop = document.getElementById('terminal').scrollHeight;
+        }
+
+        async function autoStart() {
+            const sysBox = document.getElementById('sys-info');
+            let realIP = "105.146.XXX.XXX";
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                realIP = data.ip;
+            } catch (e) {}
+
+            sysBox.innerHTML = `IDENTIFIED IP: ${realIP}<br>OS: ${navigator.platform}<br>BROWSER: ${navigator.userAgent.split(' ')[0]}<br>STORAGE ACCESS: GRANTED<br>ENCRYPTION KEY: RSA_4096_X8829`;
+
+            const logs = [
+                "> INITIALIZING OVERRIDE PROTOCOL...",
+                "> BYPASSING FIREWALL... STATUS: EXPLOITED",
+                "> ACCESSING ROOT DIRECTORY: /SYSTEM/USER/0/",
+                "> INJECTING RANSOMWARE PAYLOAD: 'DEADLOCK.EXE'",
+                "> LOCATING GEOGRAPHICAL COORDINATES...",
+                `> TARGET ACQUIRED: LAT ${userLat.toFixed(4)} | LON ${userLon.toFixed(4)}`,
+                "> BEGINNING MASS FILE ENCRYPTION...",
+                "> SENDING PRIVATE KEY TO C&C SERVER: 182.XX.XX.XX",
+                "> DISABLING USER PERMISSIONS... 100%",
+                "> SYSTEM LOCKED. DISPLAYING DEMAND..."
+                ];
+            for (let log of logs) { await typeText(log); await new Promise(r => setTimeout(r, 500)); }
+
+            document.getElementById('terminal').style.display = 'none';
+            document.getElementById('ransom-screen').style.display = 'flex';
+            
+            const mapDiv = document.getElementById('map-container');
+            mapDiv.style.display = 'block';
+            const map = L.map('map-container', { zoomControl: false, attributionControl: false }).setView([userLat, userLon], 15);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            L.marker([userLat, userLon], {icon: L.divIcon({className: 'target-icon', html: "<div style='background:red; width:12px; height:12px; border-radius:50%; border:2px solid white; box-shadow:0 0 15px red;'></div>"})}).addTo(map);
+
+            let time = 299;
+            setInterval(() => {
+                if(time >= 0) {
+                    let m = Math.floor(time / 60); let s = time % 60;
+                    document.getElementById('clock').innerText = `0${m}:${s < 10 ? '0' : ''}${s}`;
+                    time--;
+                }
+            }, 1000);
+        }
+
+        function openReveal() {
+            document.getElementById('ransom-screen').style.display = 'none';
+            document.getElementById('reveal').style.display = 'flex';
+            
+            const textToType = "Lain kali jangan gampang kasih izin lokasi ke situs asing ya. Ini contoh gimana gampangnya data kamu (IP & Lokasi) diintip orang. JANGAN DI TF SAYA HANYA PRANK!\n\nJadikan ini sebagai pembelajaran. Saya hanya ingin mengingatkan kalian semua jangan mau di iming iming uang secara ilegal gini karena menyangkut data pribadi anda sendiri.\n\nSudah banyak korban karena haus akan uang gratis, jangan jadi korban selanjutnya. BIJAKLAH DALAM MENGGUNAKAN HANDPHONE JANGAN MENGUNJUNGI SITUS WEB ILEGAL!";
+            
+            startFinalTyping(textToType);
+        }
+
+        async function startFinalTyping(text) {
+            const container = document.getElementById('final-text');
+            const cursor = document.getElementById('type-cursor');
+            for (let i = 0; i < text.length; i++) {
+                if (text[i] === "\n") {
+                    container.innerHTML += "<br>";
+                } else {
+                    container.innerHTML += text[i];
+                }
+                await new Promise(r => setTimeout(r, 25));
+                document.getElementById('reveal').scrollTop = document.getElementById('reveal').scrollHeight;
+            }
+            cursor.style.display = "none";
+        }
+    </script>
+</body>
+</html
